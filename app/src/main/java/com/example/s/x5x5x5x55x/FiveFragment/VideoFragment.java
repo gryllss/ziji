@@ -2,20 +2,33 @@ package com.example.s.x5x5x5x55x.FiveFragment;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.example.s.x5x5x5x55x.Bmob.MyUser;
 import com.example.s.x5x5x5x55x.BrowserActivity;
 import com.example.s.x5x5x5x55x.R;
+import com.example.s.x5x5x5x55x.SignUpActivity;
 import com.example.s.x5x5x5x55x.VideoFragment_LoopView.LoopViewPager;
+import com.example.s.x5x5x5x55x.utils.DateAndString;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.BmobUser;
+import cn.bmob.v3.listener.GetListener;
 
 public class VideoFragment extends Fragment {
     ImageView image_aiyiqi;
@@ -32,9 +45,14 @@ public class VideoFragment extends Fragment {
     ImageView image_dianshi;
     private LoopViewPager viewPager;
 
+
     private List<String> images = new ArrayList<>();
 
-    private long exittime = 0;
+    private String bmobCurrentTime;
+    private String localCurrentTime;
+    private Date bmobOutTime;
+
+    private Boolean isVer;
 
     public VideoFragment() {
 
@@ -49,6 +67,9 @@ public class VideoFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bmob.initialize(getActivity(), "2a654d2984b42dffb0a329dcc7189b4d");
+        isVer();
+
     }
 
     @Nullable
@@ -76,7 +97,58 @@ public class VideoFragment extends Fragment {
         image_lishipin = (ImageView) view.findViewById(R.id.imageview_lishipin);
         image_dongman = (ImageView) view.findViewById(R.id.imageview_dongman);
         image_dianshi = (ImageView) view.findViewById(R.id.imageview_dianshi);
+        openVideo();
 
+//        final MyUser myUser = MyUser.getCurrentUser(getActivity(),MyUser.class);
+//        final MyUser myUser = BmobUser.getCurrentUser(getActivity(),MyUser.class);
+//        Toast.makeText(getActivity(),myUser.getCurrentTimeMillisVer(),Toast.LENGTH_SHORT).show();//这样获取的是本地缓存
+//        query.getObject(getActivity(), myUser.getObjectId(), new GetListener<MyUser>() {
+//            @Override
+//            public void onSuccess(MyUser myUser) {
+//                bmobCurrentTime = myUser.getCurrentTimeMillisVer();
+//                Toast.makeText(getActivity(), bmobCurrentTime, Toast.LENGTH_SHORT).show();//只有BmobQuery查询语句才会读取服务器上的内容
+//
+//            }
+//
+//            @Override
+//            public void onFailure(int i, String s) {
+//
+//            }
+//        });
+//        isVer();//第一次bmobCurrentTime返回的值是null；可能是服务器需要连接的过程,需要查询两次才能返回服务器的值。
+
+
+//
+        return view;
+    }
+
+
+    public void urlEvent(ImageView imageView, final String dataurl) {
+        imageView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (isVer()){
+                    Intent intent = new Intent(getActivity(), BrowserActivity.class);
+                    intent.putExtra("url", dataurl);
+                    getActivity().startActivity(intent);
+                }else {
+                    Toast.makeText(getActivity(), "未登录或账号已过期，请重新登录", Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        isVer();
+        openVideo();
+    }
+
+    public void openVideo(){
         urlEvent(image_aiyiqi, "http://m.iqiyi.com/");
         urlEvent(image_tengxun, "http://m.v.qq.com");
         urlEvent(image_souhu, "https://m.tv.sohu.com/");
@@ -89,26 +161,44 @@ public class VideoFragment extends Fragment {
         urlEvent(image_lishipin, "http://www.pearvideo.com/?from=intro");
         urlEvent(image_dongman, "http://m.iqiyi.com/dongman/");
         urlEvent(image_dianshi, "http://wx.iptv789.com/?act=home");
-
-
-
-        return view;
     }
 
-    public void urlEvent(ImageView imageView, final String dataurl) {
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                Intent intent = new Intent(getActivity(), BrowserActivity.class);
-                intent.putExtra("url", dataurl);
-                getActivity().startActivity(intent);
 
+    public Boolean isVer(){
+        MyUser myUser = BmobUser.getCurrentUser(getActivity(), MyUser.class);
+        if (myUser != null) {
+            localCurrentTime =  myUser.getCurrentTimeMillisVer();
+
+            BmobQuery<MyUser> query = new BmobQuery<MyUser>();
+            query.getObject(getActivity(), myUser.getObjectId(), new GetListener<MyUser>() {
+                @Override
+                public void onSuccess(MyUser myUser) {
+                    bmobCurrentTime = myUser.getCurrentTimeMillisVer();
+                    bmobOutTime = DateAndString.str2Date(myUser.getOutTime());
+//                            Toast.makeText(getActivity(),bmobCurrentTime,Toast.LENGTH_SHORT).show();//只有BmobQuery查询语句才会读取服务器上的内容
+                }
+
+                @Override
+                public void onFailure(int i, String s) {
+
+                }
+            });
+
+            if (localCurrentTime.equals(bmobCurrentTime )&&bmobOutTime.getTime() >= DateAndString.millis2Date(System.currentTimeMillis()).getTime() ){
+
+                return true;//毫秒值和日期校验
+
+            }else {
+
+
+                return false;
             }
-        });
+        } else {
+
+            return false;
+        }
     }
-
-
 }
 
 

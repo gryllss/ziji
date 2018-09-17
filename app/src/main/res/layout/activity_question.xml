@@ -370,7 +370,7 @@
             android:layout_height="wrap_content"
             android:textSize="15sp"
             android:layout_marginRight="20dp"
-            android:text="可能是服务器波动较大，稍候再进行尝试。如果有需求的话，麻烦您联系客服及时修复，登录www.youjiequ.com可查看更多商品优惠。"
+            android:text="可能是服务器波动较大，稍候再进行尝试。如果有需求的话，麻烦您联系客服及时修复。"
             />
 
     </LinearLayout>

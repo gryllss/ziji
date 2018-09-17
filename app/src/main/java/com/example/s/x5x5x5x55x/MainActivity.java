@@ -1,11 +1,15 @@
 package com.example.s.x5x5x5x55x;
 
 
-
+import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.view.KeyEvent;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -24,17 +28,26 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
 
-
     private RadioGroup mRgTab;
     private List<Fragment> mFragmentList = new ArrayList<>();
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
+//        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_PHONE_STATE},1);
+//        }else {
+//
+//            TelephonyManager telephonyManager = (TelephonyManager) MainActivity.this.getSystemService( MainActivity.this.TELEPHONY_SERVICE);
+//            String imei = telephonyManager.getDeviceId();
+//            Toast.makeText(MainActivity.this,imei,Toast.LENGTH_LONG).show();
+//        }  //获取手机imei作为账号验证码，由于需要动态申请权限，这次使用在用户登录的时候记录毫秒值。
+
+
+
 
         mRgTab = (RadioGroup) findViewById(R.id.rg_main);
         mRgTab.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -64,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             changeFragment(VideoFragment.class.getName());
         }
-
-
 
 
     }
@@ -106,25 +117,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
-
-
-
-
-
-    private long exitTime=0;
-
+    private long exitTime = 0;
 
 
     @Override
-    public boolean onKeyDown(int keyCode,KeyEvent event){
-        if(keyCode==KeyEvent.KEYCODE_BACK){
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             exit();
             return false;
         }
-        return super.onKeyDown(keyCode,event);
+        return super.onKeyDown(keyCode, event);
     }
 
     private void exit() {
@@ -132,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     "再按一次退出应用", Toast.LENGTH_SHORT).show();
             exitTime = System.currentTimeMillis();
-        }else{
+        } else {
             finish();
             System.exit(0);
         }

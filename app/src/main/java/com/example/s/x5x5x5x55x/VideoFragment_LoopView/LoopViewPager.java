@@ -171,7 +171,7 @@ public class LoopViewPager extends LinearLayout {
         @Override
         public Object instantiateItem(ViewGroup container, final int position) {
             final ImageView iv = new ImageView(getContext());
-            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            iv.setScaleType(ImageView.ScaleType.FIT_XY);
             String url = images.get(position % images.size());
             Glide.with(getContext()).load(url).into(iv);
             container.addView(iv);
